@@ -6,12 +6,13 @@ from datetime import datetime, timezone
 
 from tenacity import retry, stop_after_attempt
 
+import config
 from providers.base import BaseProvider
 
 
 class AWSProvider(BaseProvider):
     name = "AWS"
-    url = "https://ip-ranges.amazonaws.com/ip-ranges.json"
+    url = config.AWS_URL
 
     @retry(stop=stop_after_attempt(3))
     def fetch(self) -> str:
