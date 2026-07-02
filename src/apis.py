@@ -1,26 +1,31 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, HTTPException, Response
 
+from constants import PROVIDERS
+from models.ip_ranges import IPRangesModel
+from services.lookup import Lookup
+from services.refresh import Refresh
 
 router = APIRouter()
 
 
 @router.post("/refresh")
-def refresh():
-    pass
+async def refresh():
+    return Refresh(PROVIDERS).run()
 
 
 @router.get("/lookup")
-def lookup(ip: str):
-    pass
+async def lookup(ip: str):
+    try:
+        return Lookup(IPRangesModel).search(ip)
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Invalid IP address: {ip!r}")
 
 
 @router.get("/providers")
-def list_providers() -> list:
-    pass
+async def list_providers() -> list:
+    return IPRangesModel.get_provider_counts()
 
 
 @router.get("/health")
-def health():
-    pass
-
-
+async def health():
+    return IPRangesModel.get_health_stats()
