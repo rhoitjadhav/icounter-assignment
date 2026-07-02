@@ -1,0 +1,2 @@
+class Refresh:
+    pass
