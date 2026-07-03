@@ -5,7 +5,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from apis import router
 
-app = FastAPI()
+app = FastAPI(
+    title="IP Lookup Service",
+    description="A FastAPI based service that collects public IP ranges from Cloud/CDN/WAF providers and identifies whether a given IP belongs to one of those providers.",
+    version="1.0.0",
+)
 
 app.add_middleware(
     CORSMiddleware,
