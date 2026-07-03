@@ -3,17 +3,16 @@ from unittest.mock import MagicMock, patch
 from services.refresh import Refresh
 
 
-def _make_provider_cls(name, records):
-    instance = MagicMock()
-    instance.name = name
-    instance.fetch.return_value = "raw"
-    instance.parse.return_value = records
-    return MagicMock(return_value=instance)
-
-
 class TestRefresh:
+    def _make_provider_cls(self, name, records):
+        instance = MagicMock()
+        instance.name = name
+        instance.fetch.return_value = "raw"
+        instance.parse.return_value = records
+        return MagicMock(return_value=instance)
+
     def test_process_provider_success(self):
-        cls = _make_provider_cls("AWS", [{"cidr": "1.2.3.0/24"}] * 3)
+        cls = self._make_provider_cls("AWS", [{"cidr": "1.2.3.0/24"}] * 3)
 
         with patch("services.refresh.IPRangesModel.upsert_many"):
             name, result = Refresh.process_provider(cls)
@@ -35,8 +34,8 @@ class TestRefresh:
 
     def test_run_returns_results_for_all_providers(self):
         providers = [
-            _make_provider_cls("AWS", [{"cidr": "1.0.0.0/8"}]),
-            _make_provider_cls("GCP", [{"cidr": "2.0.0.0/8"}]),
+            self._make_provider_cls("AWS", [{"cidr": "1.0.0.0/8"}]),
+            self._make_provider_cls("GCP", [{"cidr": "2.0.0.0/8"}]),
         ]
 
         with patch("services.refresh.IPRangesModel.upsert_many"):
