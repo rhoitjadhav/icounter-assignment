@@ -7,7 +7,30 @@ A Python service that collects public IP ranges from Cloud/CDN/WAF providers and
 ## How to Run the Project
 
 ### Prerequisites
-- Docker + Docker Compose
+- Docker + Docker Compose (for containerised run)
+- [uv](https://docs.astral.sh/uv/) (for local development)
+
+### Local development setup
+
+```bash
+# Create virtual environment and install dependencies
+uv sync
+
+# Activate the virtual environment
+source .venv/bin/activate
+
+# Run database migrations
+cd src && alembic upgrade head && cd ..
+
+# Start the server
+uvicorn src.main:app --host 0.0.0.0 --port 8001 --reload
+```
+
+The API will be available at `http://localhost:8001`.
+
+---
+
+### Docker setup
 
 ### Start the service
 
