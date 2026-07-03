@@ -108,6 +108,8 @@ Invalid IP:
 | `GET` | `/providers` | List all providers with range counts |
 | `GET` | `/health` | Service status, total ranges, last refresh time |
 
+**Interactive API docs**: http://localhost:8001/docs
+
 ---
 
 ## Sources Used
@@ -155,13 +157,11 @@ CREATE INDEX idx_range ON ip_ranges (network_int, broadcast_int);
 
 ### How Lookup Works
 
-Every IPv4 address and CIDR range is stored as a `uint32` integer pair (`network_int`, `broadcast_int`). Lookup converts the input IP to `uint32` and queries:
+Every IPv4 address and CIDR range is stored as a integer pair (`network_int`, `broadcast_int`). Lookup converts the input IP to integer and queries:
 
 ```sql
 WHERE network_int <= :ip_int AND broadcast_int >= :ip_int
 ```
-
-This is a direct B-tree range scan — O(log n), not a full table scan.
 
 ### How Refresh Works
 
@@ -171,11 +171,11 @@ This is a direct B-tree range scan — O(log n), not a full table scan.
 4. `UNIQUE(cidr, provider)` constraint handles duplicates — conflicts update `fetched_at` only
 5. Each provider runs independently — one failure does not block others
 
----
+--
 
 ## Design Decisions
 
-**Provider abstraction**: Each provider implements `BaseProvider` (ABC) with `fetch()`, `parse()`, `normalize()`. Adding a new provider = one new file, zero changes elsewhere.
+**Provider abstraction**: Each provider implements `BaseProvider(ABC)` with `fetch()`, `parse()`, `normalize()`. Adding a new provider = one new file, zero changes elsewhere.
 
 **Integer range storage**: Storing `network_int` and `broadcast_int` as integers instead of CIDR strings enables arithmetic range comparison with index support. `ipaddress.ip_network()` computes these directly.
 
@@ -200,17 +200,16 @@ This is a direct B-tree range scan — O(log n), not a full table scan.
 - **IPv4 only**: IPv6 CIDRs are parsed but skipped. `network_int`/`broadcast_int` are stored as standard integers which cannot hold 128-bit IPv6 values.
 - **SQLite concurrent writes**: SQLite serializes writes. Under high-concurrency refresh load, consider PostgreSQL.
 - **Azure URL**: Microsoft publishes weekly — `get_url()` probes the last 3 Mondays. If Microsoft changes the URL pattern, this breaks.
-- **No in-memory cache**: Lookups hit the DB on every request. A `bisect`-based in-memory cache would eliminate DB reads entirely.
+- **No lookup cache**: Lookups hit the DB on every request. A caching layer would reduce DB load under high read traffic.
 - **Cloudflare IPv4 only**: `https://www.cloudflare.com/ips-v4` — IPv6 ranges at `ips-v6` are not fetched.
 
 ---
 
 ## Future Improvements
 
-- **In-memory bisect cache**: Load all `(network_int, broadcast_int, row)` into a sorted list on startup. Use `bisect` for O(log n) lookups without any DB hit. Rebuild after each refresh.
+- **Lookup caching**: Cache lookup results to reduce DB hits under high read traffic. A sorted in-memory structure rebuilt after each refresh would eliminate DB reads entirely for repeated lookups.
 - **Parallel provider fetching**: Use `ThreadPoolExecutor` to fetch all providers concurrently — reduces refresh time from sum-of-all-fetches to slowest-single-fetch.
 - **IPv6 support**: Store `network_int`/`broadcast_int` as `NUMERIC`/`BigInteger` and extend lookup to handle 128-bit addresses.
 - **Scheduled refresh**: Add a background scheduler (APScheduler or Celery) to auto-refresh on a configurable interval.
 - **PostgreSQL support**: Already wired — set `SQLALCHEMY_DATABASE_URL` to a PostgreSQL DSN. Enables concurrent writes and `inet` type for native CIDR operations.
-- **ETag-based fetch caching**: Send `If-None-Match` headers on provider fetches — skip parse and upsert entirely when data hasn't changed.
 - **More providers**: Fastly (`api.fastly.com/public-ip-list`), Akamai, and others follow the same `BaseProvider` pattern.
