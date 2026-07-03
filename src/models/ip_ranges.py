@@ -1,12 +1,19 @@
-from sqlalchemy import Column, Integer, String, DateTime, UniqueConstraint, \
-    Index, func
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    DateTime,
+    UniqueConstraint,
+    Index,
+    func,
+)
 from sqlalchemy.dialects.sqlite import insert
 from common.helper import to_dict
 from database import Base, SessionLocal
 
 
 class IPRangesModel(Base):
-    __tablename__ = 'ip_ranges'
+    __tablename__ = "ip_ranges"
 
     id = Column(Integer, primary_key=True)
     cidr = Column(String)

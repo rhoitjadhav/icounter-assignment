@@ -14,18 +14,30 @@ class TestAWSProvider:
 
     def test_fetch_returns_decoded_string(self):
         payload = b'{"prefixes": []}'
-        with patch("urllib.request.urlopen", return_value=self._mock_response(payload)):
+        with patch(
+            "urllib.request.urlopen", return_value=self._mock_response(payload)
+        ):
             result = AWSProvider().fetch()
 
         assert result == '{"prefixes": []}'
 
     def test_parse_extracts_prefixes(self):
-        raw = json.dumps({
-            "prefixes": [
-                {"ip_prefix": "3.2.34.0/26", "region": "us-east-1", "service": "AMAZON"},
-                {"ip_prefix": "52.93.0.0/16", "region": "eu-west-1", "service": "EC2"},
-            ]
-        })
+        raw = json.dumps(
+            {
+                "prefixes": [
+                    {
+                        "ip_prefix": "3.2.34.0/26",
+                        "region": "us-east-1",
+                        "service": "AMAZON",
+                    },
+                    {
+                        "ip_prefix": "52.93.0.0/16",
+                        "region": "eu-west-1",
+                        "service": "EC2",
+                    },
+                ]
+            }
+        )
         records = AWSProvider().parse(raw)
 
         assert len(records) == 2

@@ -13,7 +13,9 @@ class TestCloudflareProvider:
 
     def test_fetch_returns_decoded_string(self):
         payload = b"103.21.244.0/22\n103.22.200.0/22\n"
-        with patch("urllib.request.urlopen", return_value=self._mock_response(payload)):
+        with patch(
+            "urllib.request.urlopen", return_value=self._mock_response(payload)
+        ):
             result = CloudflareProvider().fetch()
 
         assert result == "103.21.244.0/22\n103.22.200.0/22\n"

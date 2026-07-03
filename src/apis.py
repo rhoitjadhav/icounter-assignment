@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, HTTPException
 
 from constants import PROVIDERS
 from models.ip_ranges import IPRangesModel
@@ -32,7 +32,9 @@ async def lookup(ip: str):
     try:
         return Lookup(IPRangesModel).search(ip)
     except ValueError:
-        raise HTTPException(status_code=400, detail=f"Invalid IP address: {ip!r}")
+        raise HTTPException(
+            status_code=400, detail=f"Invalid IP address: {ip!r}"
+        )
 
 
 @router.get("/providers", summary="List providers", tags=["Data"])

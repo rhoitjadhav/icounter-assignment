@@ -18,7 +18,9 @@ class AzureProvider(BaseProvider):
         today = datetime.now(timezone.utc).date()
         last_monday = today - timedelta(days=today.weekday())
         for weeks_back in range(3):
-            date = (last_monday - timedelta(weeks=weeks_back)).strftime("%Y%m%d")
+            date = (last_monday - timedelta(weeks=weeks_back)).strftime(
+                "%Y%m%d"
+            )
             url = self.url.format(date=date)
             try:
                 urllib.request.urlopen(url, timeout=10).close()
@@ -44,7 +46,9 @@ class AzureProvider(BaseProvider):
             for cidr in props.get("addressPrefixes", []):
                 if ":" in cidr:
                     continue
-                records.append(self.normalize(cidr=cidr, region=region, service=service))
+                records.append(
+                    self.normalize(cidr=cidr, region=region, service=service)
+                )
         return records
 
     def normalize(self, cidr: str, **kwargs) -> dict:

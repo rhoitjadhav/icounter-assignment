@@ -33,7 +33,9 @@ class Refresh:
             records = provider.parse(raw)
 
             for offset in range(0, len(records), BATCH_SIZE):
-                IPRangesModel.upsert_many(records[offset:offset + BATCH_SIZE])
+                IPRangesModel.upsert_many(
+                    records[offset : offset + BATCH_SIZE]
+                )
 
             return provider.name, {
                 "success": True,
@@ -53,7 +55,9 @@ class Refresh:
 
         with ThreadPoolExecutor(max_workers=len(self.providers)) as executor:
             futures = {
-                executor.submit(self.process_provider, provider_cls): provider_cls
+                executor.submit(
+                    self.process_provider, provider_cls
+                ): provider_cls
                 for provider_cls in self.providers
             }
 

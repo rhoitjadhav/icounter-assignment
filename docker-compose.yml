@@ -11,4 +11,3 @@ services:
       - SQLALCHEMY_DATABASE_URL=sqlite:////data/ip_lookup.db
     command: watchmedo auto-restart --pattern="*.py" --recursive -- uvicorn main:app --host 0.0.0.0 --port 8001
     restart: unless-stopped
-
