@@ -4,7 +4,8 @@ from services.refresh import Refresh
 
 
 class TestRefresh:
-    def _make_provider_cls(self, name, records):
+    @staticmethod
+    def _make_provider_cls(name, records):
         instance = MagicMock()
         instance.name = name
         instance.fetch.return_value = "raw"
