@@ -21,3 +21,5 @@ AZURE_URL = os.getenv(
 CLOUDFLARE_URL = os.getenv(
     "CLOUDFLARE_URL", "https://www.cloudflare.com/ips-v4"
 )
+
+FASTLY_URL = os.getenv("FASTLY_URL", "https://api.fastly.com/public-ip-list")
